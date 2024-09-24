@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Komptube UI
+Exec=/home/vadim/myscripts/komptube/komptube-ui.sh start
+Version=1.0
+Type=Application
+Categories=Share
+Terminal=false
+Icon=/home/vadim/MyPrjs/java/komptube/komptube-chrome-ext/icon.png
+Comment=Komptube
+StartupNotify=true
+Name[ru_RU]=Komptube UI
