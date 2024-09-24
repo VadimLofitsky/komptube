@@ -1,0 +1,9 @@
+!**/.idea/
+!**/out/
+!**/target/
+!**/.gradle/
+!**/*.iml
+!**/*.log
+
+/komptube.log
+/komptube-2024-09-07.0.log
