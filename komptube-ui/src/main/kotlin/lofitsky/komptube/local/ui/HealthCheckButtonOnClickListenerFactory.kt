@@ -22,9 +22,10 @@ class HealthCheckButtonOnClickListenerFactory(private val scene: Scene) {
             fun handle() {
                 button.apply {
                     isDisable = true
-                    val isAlive = serviceController.checkHealth()
-                    graphic = ImageView(if(isAlive) imgActive else imgInactive)
-                    isDisable = !isAlive
+                    serviceController.checkHealth { isAlive ->
+                        graphic = ImageView(if(isAlive) imgActive else imgInactive)
+                        isDisable = false
+                    }
                 }
             }
         }

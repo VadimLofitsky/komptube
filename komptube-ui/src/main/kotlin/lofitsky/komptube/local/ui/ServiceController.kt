@@ -1,11 +1,12 @@
 package lofitsky.komptube.local.ui
 
+import javafx.application.Platform
 import lofitsky.komptube.common.Mode
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.FutureTask
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 
@@ -33,7 +34,7 @@ sealed class ServiceController(private val backend: BACKEND) {
         }
     }
 
-    fun checkHealth(): Boolean = sendRequest("mode=${Mode.HEALTH_CHECK}")
+    fun checkHealth(callback: (Boolean) -> Unit): Unit = sendRequest("mode=${Mode.HEALTH_CHECK}", callback)
 
     fun sendForOpening(urlDecoded: String) {
         val urlEncoded = URLEncoder.encode(urlDecoded, StandardCharsets.UTF_8)
@@ -41,9 +42,9 @@ sealed class ServiceController(private val backend: BACKEND) {
         exitProcess(0)
     }
 
-    private fun sendRequest(decodedUrlParams: String): Boolean {
-        val job = FutureTask {
-            try {
+    private fun sendRequest(decodedUrlParams: String, callback: ((Boolean) -> Unit)? = null): Unit = try {
+        thread(start = true, isDaemon = true) {
+            val requestResult = try {
                 val request: Request = Request.Builder()
                         .get()
                         .url("$backendUrl/?$decodedUrlParams")
@@ -55,15 +56,9 @@ sealed class ServiceController(private val backend: BACKEND) {
             } catch(_: Exception) {
                 false
             }
-        }
 
-        return try {
-            Thread(job)
-                .also { it.start() }
-                .join(5000)
-            job.get()
-        } catch(e: Exception) {
-            false
+            callback?.also { Platform.runLater { it(requestResult) } }
         }
-    }
+        Unit
+    } catch(_: Exception) {}
 }
